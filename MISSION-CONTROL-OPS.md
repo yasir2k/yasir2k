@@ -55,6 +55,23 @@ A daily Routine resumes the main session each morning and:
 - **Klaviyo plan:** start with Hilason store. Source list = Shopify customers via **Klaviyo's native Shopify sync, configured subscribers-only** (handles consent + dedup automatically — no manual pre-clean of Shopify buyers needed) **+** the 787 verified legacy emails. Do NOT import the legacy newsletter table wholesale.
 - Shopify Admin API token is NOT usable from the VPS (only Storefront-type tokens present; real admin tokens live in Vercel prod env). Not a blocker — Klaviyo syncs Shopify directly; the CEO session also has a working Shopify MCP connection for spot checks.
 
+## Live status & pending queue — 2026-07-12 pre-travel (Yasir away Jul 14–20)
+
+**Validated & ready (keys in `~/hermes-deployment/claude-bridge/integrations.env`):**
+- ✅ Klaviyo private key works (account readable, suppression endpoint reachable).
+- ✅ Cloudflare token works, correctly scoped to the hilason.com zone ONLY.
+
+**In-flight / queued for the daily autonomous runs, in priority order:**
+1. **Klaviyo hygiene tally** (Hermes task, read-only) — paging all ~43K profiles, classifying KEEP (subscribed OR has orders) vs SUPPRESS (not-subscribed + never-purchased = pure billing dead weight, where the bot fakes live). Slow due to Klaviyo predictive-analytics rate limits. **When it completes: report the counts, then run bulk suppression** (reversible; un-suppress restores). Suppress list written to `/home/yasir/klaviyo-hygiene/suppress.txt`. User has authorized cleanup repeatedly ("make sure to clean up so we don't pay for them") — proceed during travel, log exactly what was suppressed for review.
+2. **Klaviyo Shopify-sync config** — set to subscribers-only so the bot accounts don't silently re-inflate the billable count after suppression (the trap most people miss).
+3. **Cloudflare bot filtering** — key ready; create WAF rules + Super Bot Fight Mode on hilason.com to stop the junk traffic feeding fake signups. Measure sessions before/after via Analytics:Read.
+4. **Klaviyo flows** — build welcome, abandoned-checkout, post-purchase/replenishment, warmed win-back in DRAFT. Nothing sends without Yasir's copy sign-off.
+5. **Amazon historical backfill** (cloud builder) — pre-2026-06-22 daily/SKU metrics; Hermes owns 2026-06-22+. 2,208 daily rows landed pre-interruption; resume after the API session limit resets (was hitting "session limit resets 9pm UTC").
+6. **BarH Amazon sync** — code bugs already fixed 2026-07-05 (commit 8374020d); still zero rows since. Needs the Vercel dashboard log check for `/api/cron/amazon-intelligence/daily-sync` (Yasir-only; runtime-logs MCP call needs interactive approval).
+
+**Closed / corrected this session:**
+- ~~product_type backfill~~ **NOTHING TO DO.** Live Shopify catalog is already 100% typed (`-product_type:*` = 0 products). The "$197k untyped" in sales analytics is a historical artifact from deleted/archived products and gift cards in past orders — not a current gap, and not retroactively fixable. Supersedes the game plan's Phase-0 item.
+
 ## Notes
 
 - Legacy `sales-manager` Supabase project is read-only source material (reviews, newsletter list, in-store sales) pending archival.
