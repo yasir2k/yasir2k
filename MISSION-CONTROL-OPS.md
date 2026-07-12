@@ -48,6 +48,13 @@ A daily Routine resumes the main session each morning and:
 - 2026-07-12 findings via the bridge: two Amazon-sync code bugs from 2026-07-05 (TEXT-column keyset `>` filter; wrong account-health field names) were confirmed **already fixed same-day** in `ecom-platform` commit `8374020d` and later. BarH Equine's daily sync has produced zero rows since 2026-07-05 despite `is_active`/`sync_enabled` both `true` today — root cause not yet confirmed; a Vercel runtime-logs check to see the actual cron invocation history hit a permission wall this session couldn't clear (`get_runtime_errors` requires interactive approval). **Next step: check the Vercel dashboard directly for `/api/cron/amazon-intelligence/daily-sync` invocation history around 2026-07-06–11**, or re-attempt from an interactive session.
 - SEO report and action items live at `https://staff.uhorse.com/seo` (sub-pages: `/agents`, `/gsc`, `/batch`, `/collections`, `/history`, `/knowledge`); weekly summary via WhatsApp Mondays 7am. Open items found 2026-07-12: PR #7 (Hilason alt-text) approved but never merged; the auto-fixer is re-queuing already-fixed alt-text issues (dedup bug against `crawl_issues`); only ~9 of 4,577 open crawl issues have ever been queued for a fix (coverage gap beyond alt-text).
 
+## Email / Klaviyo hygiene (2026-07-12)
+
+- **Correction to SADDLERY-CEO-GAMEPLAN.md:** the "32,210 newsletter contacts" figure is inflated. Only **~787 are real, importable emails**; ~20,300+ rows are stored SQL-injection attack payloads (`PG_SLEEP`/`waitfor delay`) from the retired legacy signup form, plus other malformed junk. The owned-email asset rests on the **Shopify buyer base (≥10k subscribed), not the newsletter table.**
+- **Security — resolved/no action:** the SQLi strings came from the OLD custom ecommerce platform, which is confirmed **decommissioned** (no nginx/Apache/PHP/legacy service listening on the VPS; hilason.com signup is now Shopify-handled and safe). Historical residue, no live exposure.
+- **Klaviyo plan:** start with Hilason store. Source list = Shopify customers via **Klaviyo's native Shopify sync, configured subscribers-only** (handles consent + dedup automatically — no manual pre-clean of Shopify buyers needed) **+** the 787 verified legacy emails. Do NOT import the legacy newsletter table wholesale.
+- Shopify Admin API token is NOT usable from the VPS (only Storefront-type tokens present; real admin tokens live in Vercel prod env). Not a blocker — Klaviyo syncs Shopify directly; the CEO session also has a working Shopify MCP connection for spot checks.
+
 ## Notes
 
 - Legacy `sales-manager` Supabase project is read-only source material (reviews, newsletter list, in-store sales) pending archival.
