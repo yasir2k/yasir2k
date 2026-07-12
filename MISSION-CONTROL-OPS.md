@@ -30,6 +30,7 @@ A daily Routine resumes the main session each morning and:
 1. Refreshes the Amazon ingest with the latest day's data (delegated to builder).
 2. Advances the build queue above, in order — analysis and internal builds only.
 3. Commits a daily progress report to `progress/YYYY-MM-DD.md` on branch `claude/saddlery-sales-strategy-z0542c` and pushes.
+4. **Also writes the same report to the `ceo_progress_reports` StaffHub table** (report_date PK, body_md, metrics jsonb) so Yasir can scroll past dates in StaffHub. A StaffHub `/progress` page to render this table is scoped (routes are Next app-router client pages under `apps/skuvault/src/app/(app)/`, supabase server client in `src/lib/supabase/`) and queued to build during the travel window.
 
 **Standing guardrails during autonomous operation:**
 - No destructive operations, no DDL beyond the assigned amazon_*/view scope, no Shopify/customer-facing mutations, no spending, no external communications.
@@ -62,7 +63,7 @@ A daily Routine resumes the main session each morning and:
 - ✅ Cloudflare token works, correctly scoped to the hilason.com zone ONLY.
 
 **In-flight / queued for the daily autonomous runs, in priority order:**
-1. **Klaviyo hygiene tally** (Hermes task, read-only) — paging all ~43K profiles, classifying KEEP (subscribed OR has orders) vs SUPPRESS (not-subscribed + never-purchased = pure billing dead weight, where the bot fakes live). Slow due to Klaviyo predictive-analytics rate limits. **When it completes: report the counts, then run bulk suppression** (reversible; un-suppress restores). Suppress list written to `/home/yasir/klaviyo-hygiene/suppress.txt`. User has authorized cleanup repeatedly ("make sure to clean up so we don't pay for them") — proceed during travel, log exactly what was suppressed for review.
+1. ✅ **Klaviyo hygiene DONE (2026-07-12).** Tally: 48,852 total → 12,380 subscribed (KEEP), 36,472 non-subscribed (SUPPRESS). **36,431 suppressed, 0 failures** (41 no-email unsuppressable). Billable count → ~12,380; the $682 quote should drop ~2/3. Reversible via `/home/yasir/klaviyo-hygiene/suppress.txt`. NOTE: user is still on Klaviyo FREE tier and will subscribe only after confirming the reduced quote — do NOT trigger any paid action.
 2. **Klaviyo Shopify-sync config** — set to subscribers-only so the bot accounts don't silently re-inflate the billable count after suppression (the trap most people miss).
 3. **Cloudflare bot filtering** — key ready; create WAF rules + Super Bot Fight Mode on hilason.com to stop the junk traffic feeding fake signups. Measure sessions before/after via Analytics:Read.
 4. **Klaviyo flows** — build welcome, abandoned-checkout, post-purchase/replenishment, warmed win-back in DRAFT. Nothing sends without Yasir's copy sign-off.
