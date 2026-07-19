@@ -46,8 +46,13 @@ Name **"Hilason Winter Turnout — 1200D"**, budget $15–20/day, dynamic-down b
 ## eBAY — pipeline ready, needs a manual run
 Item-specifics pipeline exists (`~/ecom-platform/apps/seo-agents/agents/deepseek_full_pipeline.py`); winter blanket listings likely under the Uhorse eBay store (Rithum APID 12045671). Run to align denier/fill/size/waterproof/neck specifics + titles.
 
-## GOOGLE ORGANIC (SEO) — IN PROGRESS
-MD SEO task running at capture time (size-chart page rebuild, collection temp/fill table, content cluster). Report will land at `~/.hermes/inbox/reports/winter-seo-setup.md`; fold in when complete.
+## GOOGLE ORGANIC (SEO) — IN PROGRESS at session end
+MD SEO task (PID 3682447) was **still running when this session ended** — it's generating the guide-article cluster through the judge-gated content pipeline (the heaviest, slowest step; each article is a full LLM generation + judge pass, so the run legitimately takes 30–60+ min).
+
+**Next session — pick it up:**
+1. Check `~/.hermes/inbox/reports/winter-seo-setup.md`. If present → fold in the published/queued pages (size-chart rebuild, collection temp/fill table, content cluster) and verify the size-chart page went live with CTAs into `/collections/turnout-blankets`.
+2. Also check Supabase `content_queue` (status='published', domain_slug ilike 'hilason%', recent `published_at`) and `seo_judge_log` for what actually shipped vs held at the >=90% quality gate.
+3. If the run died without a report, re-dispatch it — the exact prompt is saved on the VPS at `~/.hermes/inbox/reports/winter-seo.prompt` (relaunch via `hermes -z "$(cat …/winter-seo.prompt)" --provider deepseek -m deepseek-v4-pro --yolo`).
 
 ---
 
