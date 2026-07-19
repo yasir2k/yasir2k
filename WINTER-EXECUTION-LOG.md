@@ -46,13 +46,13 @@ Name **"Hilason Winter Turnout — 1200D"**, budget $15–20/day, dynamic-down b
 ## eBAY — pipeline ready, needs a manual run
 Item-specifics pipeline exists (`~/ecom-platform/apps/seo-agents/agents/deepseek_full_pipeline.py`); winter blanket listings likely under the Uhorse eBay store (Rithum APID 12045671). Run to align denier/fill/size/waterproof/neck specifics + titles.
 
-## GOOGLE ORGANIC (SEO) — IN PROGRESS at session end
-MD SEO task (PID 3682447) was **still running when this session ended** — it's generating the guide-article cluster through the judge-gated content pipeline (the heaviest, slowest step; each article is a full LLM generation + judge pass, so the run legitimately takes 30–60+ min).
+## GOOGLE ORGANIC (SEO) — STALLED at session end; RE-DISPATCH next session
+MD SEO task (PID 3682447) **stalled** — it sat at ~14s CPU over 15+ min with no report and no content-pipeline activity in the logs (likely blocked on a hung pipeline subprocess/API call, not actively generating). It did **not** produce output. Don't wait on it.
 
-**Next session — pick it up:**
-1. Check `~/.hermes/inbox/reports/winter-seo-setup.md`. If present → fold in the published/queued pages (size-chart rebuild, collection temp/fill table, content cluster) and verify the size-chart page went live with CTAs into `/collections/turnout-blankets`.
-2. Also check Supabase `content_queue` (status='published', domain_slug ilike 'hilason%', recent `published_at`) and `seo_judge_log` for what actually shipped vs held at the >=90% quality gate.
-3. If the run died without a report, re-dispatch it — the exact prompt is saved on the VPS at `~/.hermes/inbox/reports/winter-seo.prompt` (relaunch via `hermes -z "$(cat …/winter-seo.prompt)" --provider deepseek -m deepseek-v4-pro --yolo`).
+**Next session — do this:**
+1. Check `~/.hermes/inbox/reports/winter-seo-setup.md` and Supabase `content_queue` (status='published', domain_slug ilike 'hilason%', recent `published_at`) + `seo_judge_log` — in the unlikely case it recovered and shipped anything.
+2. Otherwise **re-dispatch it** (kill the stale PID first if still alive): the exact prompt is saved on the VPS at `~/.hermes/inbox/reports/winter-seo.prompt` — relaunch via the venv hermes: `nohup ~/hermes-deployment/hermes-agent/.venv/bin/hermes -z "$(cat ~/.hermes/inbox/reports/winter-seo.prompt)" --provider deepseek -m deepseek-v4-pro --yolo > ~/.hermes/inbox/reports/winter-seo.log 2>&1 &`. Consider splitting it into smaller runs (size-chart page first, then each guide) so one stuck step can't stall the whole batch.
+3. **Quick direct win that doesn't need the pipeline:** the single highest-value SEO edit is adding the temperature→fill-weight table to the `turnout-blankets` collection page — do it directly via Shopify `update-collection` (append to the existing descriptionHtml; the page is already otherwise well-optimized). Collection GID `gid://shopify/Collection/271181316247`.
 
 ---
 
