@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "defaultMode": "acceptEdits",
+    "allow": [
+      "Bash",
+      "mcp__0f97248a-d612-4f6c-a4d4-cde7179c9529__execute_sql",
+      "mcp__0f97248a-d612-4f6c-a4d4-cde7179c9529__*",
+      "mcp__8cbe02d0-e84e-4e63-891a-9652efaf0f50__*",
+      "mcp__7b05022e-3ee1-4bdd-987d-e56beab22642__*",
+      "mcp__github__*"
+    ]
+  },
+  "enableAllProjectMcpServers": true
+}
